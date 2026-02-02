@@ -1,0 +1,63 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  branch    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  displayName String?
+  email       String  @unique
+  phoneNumber String?
+  role        String
+
+  passwordHash     String
+  refreshTokenHash String?
+
+  minutasCreated Minuta[]
+  eventsCreated  Event[]
+}
+
+model Minuta {
+  id              String   @id
+  branch          String
+  createdAt       DateTime @default(now())
+  createdBy       String
+  eventId         String
+  expectations    String
+  nextMeetingDate DateTime
+  role            String
+  supervisor      String
+  whatHappened    String
+
+  createdByUser User  @relation(fields: [createdBy], references: [id])
+  event         Event @relation(fields: [eventId], references: [id])
+}
+
+model Event {
+  id          String   @id
+  color       String
+  createdAt   DateTime @default(now())
+  createdBy   String
+  date        DateTime
+  description String
+  title       String
+  type        String
+  year        Int
+
+  createdByUser User     @relation(fields: [createdBy], references: [id])
+  minutas       Minuta[]
+}
